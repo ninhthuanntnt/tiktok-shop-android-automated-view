@@ -2,23 +2,21 @@ import uiautomator2 as u2
 import time
 import random
 
-adbConnectString = '192.168.1.20:36741'
+adbConnectString = 'R3CN30DLZ7M'
 print('Connectting to device')
 d = u2.connect(adbConnectString)
 print('Connected to device', d.info)
 width, height = d.window_size()
 print('Device screen size', width, height)
 
-shopNameToSearch="Tabalo"
-matchedShopName="Tabalo Camping ⛺️"
 addButtonXpath = '//*[@resource-id="com.zhiliaoapp.musically:id/ilb"]'
 searchButtonXpath = '//*[@resource-id="com.zhiliaoapp.musically:id/fv7"]'
 searchInputXpath = '//*[@resource-id="com.zhiliaoapp.musically:id/et2"]'
 captchaInputXpath = '//*[@resource-id="com.zhiliaoapp.musically:id/dbs"]'
 shopTabXpath = '//*[@content-desc="Shop"]'
-matchedShopXpath = f'//*[@content-desc="{matchedShopName}"]'
 shopTabInsideTheMatchedShopXpath = '//*[@resource-id="com.zhiliaoapp.musically:id/a_k"]'
 shopItemsXpath = '//com.lynx.tasm.behavior.ui.view.UIComponent'
+clonedAppByUserXpath = '//*[@text="{user}" and @resource-id="com.py.cloneapp.huawei:id/tv_name"]'
 
 def restartApp():
   d.app_stop('com.zhiliaoapp.musically')
@@ -96,7 +94,8 @@ def startClickAnItemInShop():
 
   clickOnSelectorWithIndex(shopItemsXpath, randomIndex)
 
-def startViewShop():
+def startViewShop(shopNameToSearch, matchedShopName):
+  matchedShopXpath = f'//*[@content-desc="{matchedShopName}"]'
   waitUntilTikTokOpened()
 
   waitUntilSelectorAppear(searchButtonXpath, timeout=5)
@@ -130,11 +129,27 @@ def startViewShop():
 
   startWarmUp()
 
+  print('Finished the view tiktok shop')
 
-try:
+def restartClonedApp(user):
+  d.app_start('com.py.cloneapp.huawei')
+
+  waitUntilSelectorAppear(clonedAppByUserXpath.format(user = user), timeout=5)
+  clickOnSelector(clonedAppByUserXpath.format(user = user))
+
+
+def flowViewTiktokShop():
   restartApp()
   startWarmUp()
-  startViewShop()
+  startViewShop('Tabalo', 'Tabalo Camping ⛺️')
+
+def flowViewTiktokShopFromClonedApp(user):
+  restartClonedApp(user)
+  startWarmUp()
+  startViewShop('Tabalo', 'Tabalo Camping ⛺️')
+
+try:
+  flowViewTiktokShopFromClonedApp('t-user1')
 except Exception as e:
   print('Error while running the script', e)
-  restartApp()
+  # flowViewTiktokShop()
